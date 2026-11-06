@@ -65,11 +65,12 @@ jobs:
             sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
             sudo usermod -aG docker $USER
 
-            # 2. Pull latest code and deploy
+            # 2. Pull latest code, stop old containers, and deploy cleanly
             cd ~/devops-analytics-service || git clone https://github.com/maiaeltufaili/devops-analytics-service.git ~/devops-analytics-service
             cd ~/devops-analytics-service
             git pull origin main
             echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" > .env
             docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
+            docker compose down
             docker compose pull
             docker compose up -d --build
