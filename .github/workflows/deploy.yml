@@ -54,5 +54,10 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/analytics-app:latest
-            docker-compose up -d --build
+            cd ~/devops-analytics-service || git clone https://github.com/maiaeltufaili/devops-analytics-service.git ~/devops-analytics-service
+            cd ~/devops-analytics-service
+            git pull origin main
+            echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" > .env
+            docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
+            docker compose pull
+            docker compose up -d --build
