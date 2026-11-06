@@ -1,4 +1,3 @@
-Here is the updated README file with all emojis removed:
 
 ```markdown
 # DevOps Analytics Service
