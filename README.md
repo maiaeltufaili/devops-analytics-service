@@ -1,36 +1,39 @@
-
-```markdown
 # DevOps Analytics Service
 
-A containerized Node.js analytics microservice featuring a fully automated CI/CD pipeline, automated testing, container orchestration via Docker Compose, and automated cloud deployment to AWS EC2.
+A production-ready, containerized Node.js analytics microservice featuring a fully automated CI/CD pipeline, automated testing, container orchestration via Docker Compose, and automated cloud deployment to AWS EC2.
 
 ---
 
-## Tech Stack & Infrastructure
+## Technical Stack & Architecture
 
-* Runtime: Node.js, Express
-* Testing: Jest
-* Containerization: Docker, Docker Compose, Docker Hub
-* CI/CD Orchestration: GitHub Actions
-* Cloud Infrastructure: AWS EC2 (Ubuntu)
+* **Runtime:** Node.js, Express
+* **Testing:** Jest
+* **Containerization:** Docker, Docker Compose, Docker Hub
+* **CI/CD Orchestration:** GitHub Actions
+* **Cloud Infrastructure:** AWS EC2 (Ubuntu Linux)
 
 ---
 
-## Architecture & CI/CD Pipeline
+## CI/CD Pipeline Workflow
 
-The project uses a two-stage GitHub Actions workflow triggered on pushes and pull requests to the `main` branch:
+The repository includes a two-stage automated workflow defined in `.github/workflows/deploy.yml`:
 
 1. **Test and Build (`test-and-build`):**
-   * Checks out the repository and sets up the Node.js environment.
-   * Installs dependencies (`npm ci`) and runs automated Jest test suites.
-   * Logs into Docker Hub securely using GitHub Secrets.
-   * Builds the multi-platform Docker image and pushes the latest tag to Docker Hub.
+* Checks out code on every push or pull request to the `main` branch.
+* Sets up the Node.js environment and installs dependencies using `npm ci`.
+* Executes automated test suites via Jest.
+* Authenticates with Docker Hub securely using encrypted repository secrets.
+* Builds the container image and pushes the latest tag to Docker Hub.
+
 
 2. **Deploy (`deploy`):**
-   * Automatically connects to the AWS EC2 instance securely via SSH.
-   * Ensures Docker and Docker Compose are installed on the target environment.
-   * Pulls the latest repository updates from GitHub.
-   * Tears down older containers (`docker compose down`), pulls the updated images from Docker Hub, and spins up the live service stack (`docker compose up -d --build`).
+* Triggers automatically upon successful completion of the build phase on the `main` branch.
+* Connects securely to the AWS EC2 target instance via SSH.
+* Automatically provisions Docker Engine and Docker Compose if missing on the target host.
+* Pulls the latest repository updates and environment configurations.
+* Gracefully tears down existing containers (`docker compose down`), pulls updated images, and redeploys the live service stack (`docker compose up -d --build`).
+
+
 
 ---
 
@@ -40,12 +43,12 @@ The project uses a two-stage GitHub Actions workflow triggered on pushes and pul
 devops-analytics-service/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml      # GitHub Actions CI/CD pipeline configuration
-├── src/                    # Application source code
+│       └── deploy.yml      # GitHub Actions CI/CD workflow configuration
+├── src/                    # Application source code and API endpoints
 ├── tests/                  # Automated test suites (Jest)
-├── Dockerfile              # Container build instructions
-├── docker-compose.yml      # Multi-container orchestration setup
-├── package.json            # Node.js dependencies and scripts
+├── Dockerfile              # Multi-stage container build definition
+├── docker-compose.yml      # Multi-container service orchestration
+├── package.json            # Node.js dependencies and project scripts
 └── README.md               # Project documentation
 
 ```
@@ -54,11 +57,11 @@ devops-analytics-service/
 
 ## Local Development & Setup
 
-If you want to run or test the service locally:
+To run, test, and develop the service locally:
 
 1. **Clone the repository:**
 ```bash
-git clone [https://github.com/maiaeltufaili/devops-analytics-service.git](https://github.com/maiaeltufaili/devops-analytics-service.git)
+git clone https://github.com/maiaeltufaili/devops-analytics-service.git
 cd devops-analytics-service
 
 ```
@@ -71,14 +74,14 @@ npm install
 ```
 
 
-3. **Run tests:**
+3. **Run automated tests:**
 ```bash
 npm test
 
 ```
 
 
-4. **Run locally with Docker Compose:**
+4. **Run locally using Docker Compose:**
 ```bash
 docker compose up --build
 
@@ -88,9 +91,9 @@ docker compose up --build
 
 ---
 
-## Environment Variables
+## Environment Configuration
 
-To run the application, configure a `.env` file in the root directory with the required variables:
+Create a `.env` file in the root directory of the project for local execution:
 
 ```env
 PORT=3000
@@ -98,6 +101,4 @@ DOCKER_USERNAME=your_docker_username
 
 ```
 
-```
-
-```
+For production deployments on AWS EC2, the pipeline dynamically generates the `.env` file using GitHub Actions Secrets (`DOCKER_USERNAME`, `DOCKER_PASSWORD`, `SERVER_IP`, `SERVER_USER`, and `SSH_PRIVATE_KEY`).
